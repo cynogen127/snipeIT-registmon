@@ -8,6 +8,7 @@
 ![License](https://img.shields.io/badge/license-MIT-green.svg)
 
 **A modern, real-time dashboard for Snipe-IT asset and license management**
+<img width="1919" height="998" alt="image" src="https://github.com/user-attachments/assets/3a090e00-951c-4d14-98ad-a7912ca7d88a" />
 
 [Features](#-features) • [Quick Start](#-quick-start) • [Installation](#-installation) • [Screenshots](#-screenshots) • [Configuration](#%EF%B8%8F-configuration) • [Troubleshooting](#-troubleshooting)
 
@@ -67,9 +68,9 @@ Snipe-IT Management Monitor is a **100% self-contained deployment script** that 
 
 1. **Download the script:**
 ```bash
-wget https://raw.githubusercontent.com/yourusername/snipeit-monitor/main/deploy.py
+wget https://raw.githubusercontent.com/snipeIT-registmon/main/deploy.py
 # OR
-curl -O https://raw.githubusercontent.com/yourusername/snipeit-monitor/main/deploy.py
+curl -O https://raw.githubusercontent.com/snipeIT-registmon/main/deploy.py
 ```
 
 2. **Run the deployment script:**
@@ -262,7 +263,7 @@ Staff lists are saved to browser localStorage. If cleared:
 Create a `staff.txt` file with one name per line:
 
 ```
-John Doe
+Osama Bin Laden
 Jane Smith
 Ahmad Abdullah
 Sarah Johnson
@@ -376,9 +377,8 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 📞 Support
 
-- **Issues:** [GitHub Issues](https://github.com/yourusername/snipeit-monitor/issues)
-- **Discussions:** [GitHub Discussions](https://github.com/yourusername/snipeit-monitor/discussions)
-- **Email:** your.email@example.com
+- **Issues:** [GitHub Issues](https://github.com/snipeIT-registmon/issues)
+- **Discussions:** [GitHub Discussions](https://github.com/snipeIT-registmon/discussions)
 
 ---
 
