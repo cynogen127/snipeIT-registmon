@@ -8,7 +8,7 @@
 ![License](https://img.shields.io/badge/license-MIT-green.svg)
 
 **A modern, real-time dashboard for Snipe-IT asset and license management**
-<img width="1919" height="993" alt="image" src="https://github.com/user-attachments/assets/455e704d-5705-48a9-a4f7-47f1563ec590" />
+
 [Features](#-features) • [Quick Start](#-quick-start) • [Installation](#-installation) • [Screenshots](#-screenshots) • [Configuration](#%EF%B8%8F-configuration) • [Troubleshooting](#-troubleshooting)
 
 </div>
