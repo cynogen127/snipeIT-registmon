@@ -17,7 +17,7 @@
 ---
 
 ## 🎯 Overview
-
+# This Web App **MUST** BE USE ONLY IN LOCAL NETWORK AND ONLY AUTHORIZED PERSON CAN MANAGE SINCE THERE IS NO ANY SECURITY ENHANCED ON THE CODE
 Snipe-IT Management Monitor is a **100% self-contained deployment script** that creates a complete web-based monitoring dashboard for your Snipe-IT instance. Track hardware assets, manage software licenses, and monitor staff registrations - all with a beautiful, responsive interface.
 
 ### What Makes This Special?
