@@ -1,0 +1,3 @@
+url=http://snipe-it-server-ip/domain:8000/api/v1
+token={your snipe-it token}
+community=public
