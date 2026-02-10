@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Snipe-IT Monitor v2.0 - COMPLETE Self-Contained Deployment Script
+Snipe-IT Monitor v2.1
 """
 
 import os
@@ -43,7 +43,6 @@ def create_proxy_server(base_dir, snipeit_url, snipeit_token):
     """Create Express proxy server with FIXED CORS"""
     print_info("Creating proxy server with FIXED CORS (server.js)...")
 
-    # Using triple quotes and .format() to avoid f-string issues
     server_js = """const express = require('express');
 const cors = require('cors');
 const fs = require('fs');
@@ -91,7 +90,7 @@ app.use((req, res, next) => {{
   res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
   res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Accept');
   res.header('Access-Control-Expose-Headers', 'Content-Type');
-  
+
   // Handle OPTIONS method
   if (req.method === 'OPTIONS') {{
     res.sendStatus(204);
@@ -101,9 +100,9 @@ app.use((req, res, next) => {{
 }});
 
 app.get('/health', (req, res) => {{
-  res.json({{ 
-    status: 'ok', 
-    timestamp: new Date().toISOString(), 
+  res.json({{
+    status: 'ok',
+    timestamp: new Date().toISOString(),
     snipeitUrl: SNIPEIT_API_URL,
     staffListExists: fs.existsSync(STAFF_LIST_FILE),
     cors: 'enabled'
@@ -114,12 +113,12 @@ app.get('/health', (req, res) => {{
 app.get('/staff-list', (req, res) => {{
   try {{
     console.log('📥 GET /staff-list request received');
-    
+
     if (fs.existsSync(STAFF_LIST_FILE)) {{
       const data = fs.readFileSync(STAFF_LIST_FILE, 'utf8');
       const staffData = JSON.parse(data);
       console.log(`✅ Loaded staff list: ${{staffData.names.length}} names`);
-      
+
       res.setHeader('Content-Type', 'application/json');
       res.status(200).json(staffData);
     }} else {{
@@ -138,23 +137,23 @@ app.post('/staff-list', (req, res) => {{
   try {{
     console.log('📥 POST /staff-list request received');
     const {{ names }} = req.body;
-    
+
     if (!Array.isArray(names)) {{
       return res.status(400).json({{ error: 'Names must be an array' }});
     }}
-    
+
     const staffData = {{
       names: names,
       timestamp: new Date().toISOString(),
       count: names.length
     }};
-    
+
     fs.writeFileSync(STAFF_LIST_FILE, JSON.stringify(staffData, null, 2), 'utf8');
     console.log(`✅ Saved staff list: ${{names.length}} names to ${{STAFF_LIST_FILE}}`);
-    
+
     res.setHeader('Content-Type', 'application/json');
-    res.status(200).json({{ 
-      success: true, 
+    res.status(200).json({{
+      success: true,
       count: names.length,
       timestamp: staffData.timestamp
     }});
@@ -164,18 +163,27 @@ app.post('/staff-list', (req, res) => {{
   }}
 }});
 
-// DELETE staff list from server
+// DELETE staff list from server - FIXED VERSION
 app.delete('/staff-list', (req, res) => {{
   try {{
     console.log('📥 DELETE /staff-list request received');
-    
+    console.log('📂 Staff list file path:', STAFF_LIST_FILE);
+    console.log('📂 File exists before delete:', fs.existsSync(STAFF_LIST_FILE));
+
     if (fs.existsSync(STAFF_LIST_FILE)) {{
       fs.unlinkSync(STAFF_LIST_FILE);
       console.log('✅ Deleted staff list file');
+      console.log('📂 File exists after delete:', fs.existsSync(STAFF_LIST_FILE));
+    }} else {{
+      console.log('ℹ️ Staff list file does not exist');
     }}
-    
+
     res.setHeader('Content-Type', 'application/json');
-    res.status(200).json({{ success: true }});
+    res.status(200).json({{
+      success: true,
+      deleted: true,
+      fileExists: fs.existsSync(STAFF_LIST_FILE)
+    }});
   }} catch (error) {{
     console.error('❌ Error deleting staff list:', error.message);
     res.status(500).json({{ error: 'Failed to delete staff list', message: error.message }});
@@ -227,7 +235,7 @@ app.listen(PORT, '0.0.0.0', () => {{
 
     with open(f"{base_dir}/server/server.js", "w") as f:
         f.write(server_js)
-    print_success("server/server.js created with FIXED CORS!")
+    print_success("server/server.js created with FIXED DELETE!")
 
 
 def create_dockerfile(base_dir):
@@ -317,7 +325,7 @@ services:
       - SNIPEIT_API_TOKEN={token}
       - PORT=3001
     volumes:
-      - staff-data:/app/data
+      - ./staff-data:/app/data
     restart: unless-stopped
     networks:
       - snipeit-network
@@ -341,7 +349,7 @@ def create_package_json(base_dir):
 
     package_json_content = """{
   "name": "snipeit-monitor",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -440,7 +448,7 @@ def create_index_html(base_dir):
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Snipe-IT Management Monitor</title>
+    <title>Master Sofa Asset Management Monitoring</title> <i className="fa fa-chart-line"></i>
   </head>
   <body>
     <div id="root"></div>
@@ -501,15 +509,18 @@ ReactDOM.createRoot(document.getElementById('root')).render(
 
 
 def create_app_jsx(base_dir):
-    """Create src/App.jsx with SERVER-SIDE persistence"""
-    print_info("Creating src/App.jsx with SERVER-SIDE persistence...")
+    """Create src/App.jsx with FIXED clear staff list"""
+    print_info("Creating src/App.jsx with FIXED clear staff list...")
 
     app_jsx = """import React, { useState, useEffect } from 'react';
-import { RefreshCw, CheckCircle, Clock, Laptop, Monitor, Search, Filter, Upload, UserCheck, UserX, Users, Download, Zap, Key, Calendar, AlertCircle, X, FileText, ChevronRight } from 'lucide-react';
+import { RefreshCw, CheckCircle, Clock, Laptop, Monitor, Search, Filter, Upload, UserCheck, UserX, Users, Download, Zap, Key, Calendar, AlertCircle, X, FileText, ChevronRight , Printer } from 'lucide-react';
 
 const SnipeITMonitor = () => {
   const [assets, setAssets] = useState([]);
   const [licenses, setLicenses] = useState([]);
+  const [printers, setPrinters] = useState([]);
+  const [loadingPrinters, setLoadingPrinters] = useState(false);
+  const [printerSearchTerm, setPrinterSearchTerm] = useState('');
   const [selectedLicense, setSelectedLicense] = useState(null);
   const [licenseSeats, setLicenseSeats] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -519,7 +530,7 @@ const SnipeITMonitor = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [licenseSearchTerm, setLicenseSearchTerm] = useState('');
   const [filterType, setFilterType] = useState('all');
-  const [activeTab, setActiveTab] = useState('assets'); // 'assets' or 'licenses'
+  const [activeTab, setActiveTab] = useState('assets');
   const [staffList, setStaffList] = useState([]);
   const [registeredStaff, setRegisteredStaff] = useState([]);
   const [notRegisteredStaff, setNotRegisteredStaff] = useState([]);
@@ -541,8 +552,13 @@ const SnipeITMonitor = () => {
     inUse: 0,
     expiringSoon: 0
   });
+  const [printerStats, setPrinterStats] = useState({
+    total: 0,
+    deployed: 0,
+    available: 0,
+    lowToner: 0
+  });
 
-  // Use proxy server - SERVER-SIDE STORAGE!
   const API_BASE_URL = window.location.hostname === 'localhost'
     ? 'http://localhost:3001/api'
     : `http://${window.location.hostname}:3001/api`;
@@ -551,31 +567,62 @@ const SnipeITMonitor = () => {
     ? 'http://localhost:3001/staff-list'
     : `http://${window.location.hostname}:3001/staff-list`;
 
-  // FIXED: Load staff list from SERVER on component mount
+  const parseTonerStatus = (notes) => {
+    if (!notes) return null;
+    const tonerRegex = /(BLACK|CYAN|MAGENTA|YELLOW):\s*(-?[0-9.]+)%/gi;
+    const toners = {};
+    let match;
+    while ((match = tonerRegex.exec(notes)) !== null) {
+      toners[match[1].toUpperCase()] = parseFloat(match[2]);
+    }
+    return Object.keys(toners).length > 0 ? toners : null;
+  };
+
+  const getTonerBarColor = (percentage, color) => {
+    if (percentage < 20) return 'bg-red-500';
+    if (percentage < 40) return 'bg-orange-500';
+    switch(color) {
+      case 'BLACK': return 'bg-gray-700';
+      case 'CYAN': return 'bg-cyan-500';
+      case 'MAGENTA': return 'bg-pink-500';
+      case 'YELLOW': return 'bg-yellow-500';
+      default: return 'bg-blue-500';
+    }
+  };
+
+  const extractTotalPages = (notes) => {
+    if (!notes) return 'N/A';
+    const match = notes.match(/Total Pages:\s*([0-9,]+)/i);
+    return match ? match[1] : 'N/A';
+  };
+
+  // Load staff list from SERVER on component mount
   const loadStaffListFromServer = async () => {
     try {
       console.log('🔄 Loading staff list from server...');
       const response = await fetch(STAFF_LIST_URL);
-      
+
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-      
+
       const data = await response.json();
-      
+
       if (data.names && Array.isArray(data.names) && data.names.length > 0) {
         setStaffList(data.names);
         console.log('✅ Staff list loaded from server:', data.names.length, 'names');
         console.log('📅 Last saved:', data.timestamp);
       } else {
         console.log('ℹ️ No staff list found on server');
+        setStaffList([]);
       }
     } catch (error) {
       console.error('❌ Error loading staff list from server:', error);
+      setStaffList([]);
     }
   };
 
-  // FIXED: Save staff list to SERVER (works across all browsers!)
+  // Save staff list to SERVER
   const saveStaffListToServer = async (names) => {
     try {
       console.log('💾 Saving staff list to server...');
@@ -586,11 +633,11 @@ const SnipeITMonitor = () => {
         },
         body: JSON.stringify({ names: names })
       });
-      
+
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-      
+
       const data = await response.json();
       console.log('✅ Staff list saved to server:', data.count, 'names');
       return true;
@@ -605,13 +652,18 @@ const SnipeITMonitor = () => {
     try {
       console.log('🗑️ Deleting staff list from server...');
       const response = await fetch(STAFF_LIST_URL, {
-        method: 'DELETE'
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json'
+        }
       });
-      
+
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-      
+
+      const data = await response.json();
+      console.log('✅ Server response:', data);
       console.log('✅ Staff list deleted from server');
       return true;
     } catch (error) {
@@ -620,7 +672,7 @@ const SnipeITMonitor = () => {
     }
   };
 
-  // FIXED: File upload handler with SERVER-SIDE storage
+  // File upload handler
   const handleFileUpload = async (event) => {
     const file = event.target.files[0];
     if (file) {
@@ -630,12 +682,10 @@ const SnipeITMonitor = () => {
         const names = text.split('\\n')
           .map(name => name.trim())
           .filter(name => name.length > 0);
-        
-        // Save to SERVER
+
         const saved = await saveStaffListToServer(names);
-        
+
         if (saved) {
-          // Update local state
           setStaffList(names);
           alert(`✅ Successfully saved ${names.length} staff members to server!\\n\\nThis list is now available across ALL browsers and devices!`);
         } else {
@@ -663,17 +713,35 @@ const SnipeITMonitor = () => {
     window.URL.revokeObjectURL(url);
   };
 
+  // FIXED: Clear staff list - properly deletes from server
   const clearStaffList = async () => {
-    if (window.confirm('Are you sure you want to clear the staff list from the SERVER? This will affect ALL users and browsers.')) {
-      const deleted = await deleteStaffListFromServer();
-      
-      if (deleted) {
-        setStaffList([]);
-        setNotRegisteredStaff([]);
-        console.log('✅ Staff list cleared from server');
-        alert('✅ Staff list cleared successfully from server');
-      } else {
-        alert('⚠️ Error: Could not clear staff list from server. Please check the console.');
+    if (window.confirm('⚠️ Are you sure you want to clear the staff list from the SERVER?\\n\\nThis will:\\n• Delete the file from the server\\n• Affect ALL users and browsers\\n• Cannot be undone')) {
+      try {
+        // Step 1: Delete from server FIRST
+        console.log('Step 1: Deleting from server...');
+        const deleted = await deleteStaffListFromServer();
+
+        if (deleted) {
+          // Step 2: Clear all local state
+          console.log('Step 2: Clearing local state...');
+          setStaffList([]);
+          setNotRegisteredStaff([]);
+          setRegisteredStaff([]);
+          setStats(prev => ({
+            ...prev,
+            staffRegistered: 0,
+            staffNotRegistered: 0
+          }));
+
+          console.log('✅ Staff list cleared successfully!');
+          alert('✅ Staff list cleared successfully from server!\\n\\nRefresh the page to confirm.');
+        } else {
+          console.error('❌ Server deletion failed');
+          alert('⚠️ Error: Could not delete staff list from server.\\n\\nPlease check the server logs.');
+        }
+      } catch (error) {
+        console.error('❌ Error in clearStaffList:', error);
+        alert('⚠️ Error: ' + error.message);
       }
     }
   };
@@ -749,7 +817,6 @@ const SnipeITMonitor = () => {
         const availableSeats = license.available_seats_count || license.availableSeats || 0;
         const usedSeats = totalSeats - availableSeats;
 
-        // Check if expiring soon (within 30 days)
         const expirationDate = license.expiration_date?.date || license.expiration_date;
         const isExpiringSoon = expirationDate ?
           (new Date(expirationDate) - new Date()) / (1000 * 60 * 60 * 24) <= 30 : false;
@@ -777,7 +844,6 @@ const SnipeITMonitor = () => {
 
       setLicenses(processedLicenses);
 
-      // Calculate license stats
       const available = processedLicenses.reduce((sum, lic) => sum + lic.availableSeats, 0);
       const inUse = processedLicenses.reduce((sum, lic) => sum + lic.usedSeats, 0);
       const expiringSoon = processedLicenses.filter(lic => lic.isExpiringSoon && !lic.terminated).length;
@@ -833,7 +899,99 @@ const SnipeITMonitor = () => {
     }
   };
 
-  const handleViewLicenseDetails = (license) => {
+  const fetchPrinters = async () => {
+    try {
+      setLoadingPrinters(true);
+      setError(null);
+      const response = await fetch(`${API_BASE_URL}/hardware?limit=500`, {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' }
+      });
+      if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+      const data = await response.json();
+      let assetsData = [];
+      // Handle different API response formats
+      if (data && data.rows && Array.isArray(data.rows)) {
+        assetsData = data.rows;
+      } else if (data && data.data && Array.isArray(data.data)) {
+        assetsData = data.data;
+      } else if (Array.isArray(data)) {
+        assetsData = data;
+      } else if (typeof data === 'object' && data !== null) {
+        const firstArray = Object.values(data).find(val => Array.isArray(val));
+        assetsData = firstArray || [];
+      }
+
+
+const printerAssets = assetsData.filter(asset => {
+        const category = (asset.category?.name || '').toLowerCase();
+        const name = (asset.name || '').toLowerCase();
+        return category.includes('printer') ||
+               category.includes('mfp') ||
+               category.includes('office equipment') ||
+               name.includes('printer');
+      });
+      const processedPrinters = printerAssets.map(printer => {
+        const customFields = printer.custom_fields || {};
+        const getCustomField = (possibleNames) => {
+          // Handle both direct values and nested objects
+          for (const fieldName of possibleNames) {
+            if (customFields[fieldName]) {
+              const field = customFields[fieldName];
+
+              // If it's a string, return it directly
+              if (typeof field === 'string') return field;
+
+              // If it's an object, check multiple possible value keys
+              if (typeof field === 'object' && field !== null) {
+                if (field.value) return field.value;
+                if (field.field) return field.field;
+                if (field._value) return field._value;
+                if (field.text) return field.text;
+              }
+            }
+          }
+          return 'N/A';
+        };
+        const ipAddress = getCustomField(['IP Address', 'ip address', '_snipeit_ip_address_1', '_snipeit_ip_address_2', 'ip_address']);
+        const notes = printer.notes || '';
+        const tonerStatus = parseTonerStatus(notes);
+        let lowestToner = 100;
+        if (tonerStatus) {
+          lowestToner = Math.min(...Object.values(tonerStatus));
+        }
+        return {
+          id: printer.id,
+          name: printer.name || 'Unknown',
+          assetTag: printer.asset_tag || 'N/A',
+          model: printer.model?.name || 'Unknown Model',
+          status: printer.status_label?.name || 'Unknown',
+          ip: ipAddress,
+          notes: notes,
+          tonerStatus: tonerStatus,
+          lowestToner: lowestToner,
+          isDeployed: printer.status_label?.status_meta === 'deployed',
+          totalPages: extractTotalPages(notes)
+        };
+      });
+      setPrinters(processedPrinters);
+      const deployed = processedPrinters.filter(p => p.isDeployed).length;
+      const lowToner = processedPrinters.filter(p => p.lowestToner < 20).length;
+      setPrinterStats({
+        total: processedPrinters.length,
+        deployed: deployed,
+        available: processedPrinters.length - deployed,
+        lowToner: lowToner
+      });
+    } catch (error) {
+      console.error('Error fetching printers:', error);
+      setError(`Failed to fetch printers: ${error.message}`);
+    } finally {
+      setLoadingPrinters(false);
+    }
+  };
+
+    const handleViewLicenseDetails = (license) => {
     setSelectedLicense(license);
     fetchLicenseSeats(license.id);
   };
@@ -866,10 +1024,16 @@ const SnipeITMonitor = () => {
       const data = await response.json();
 
       let assetsData = [];
+      // Handle different API response formats
       if (data && data.rows && Array.isArray(data.rows)) {
         assetsData = data.rows;
+      } else if (data && data.data && Array.isArray(data.data)) {
+        assetsData = data.data;
       } else if (Array.isArray(data)) {
         assetsData = data;
+      } else if (typeof data === 'object' && data !== null) {
+        const firstArray = Object.values(data).find(val => Array.isArray(val));
+        assetsData = firstArray || [];
       } else {
         console.error('Unexpected data structure:', data);
         throw new Error('Invalid API response structure');
@@ -886,12 +1050,21 @@ const SnipeITMonitor = () => {
         const customFields = asset.custom_fields || {};
 
         const getCustomField = (possibleNames) => {
+          // Handle both direct values and nested objects
           for (const fieldName of possibleNames) {
             if (customFields[fieldName]) {
               const field = customFields[fieldName];
+
+              // If it's a string, return it directly
               if (typeof field === 'string') return field;
-              if (field.value) return field.value;
-              if (field.field) return field.field;
+
+              // If it's an object, check multiple possible value keys
+              if (typeof field === 'object' && field !== null) {
+                if (field.value) return field.value;
+                if (field.field) return field.field;
+                if (field._value) return field._value;
+                if (field.text) return field.text;
+              }
             }
           }
           return 'N/A';
@@ -1022,7 +1195,7 @@ const SnipeITMonitor = () => {
 
   useEffect(() => {
     fetchAssets();
-    const interval = setInterval(fetchAssets, 30000); // 30 seconds
+    const interval = setInterval(fetchAssets, 30000);
     return () => clearInterval(interval);
   }, []);
 
@@ -1031,6 +1204,7 @@ const SnipeITMonitor = () => {
       fetchLicenses();
     }
   }, [activeTab]);
+  useEffect(() => { if (activeTab === 'printers' && printers.length === 0) fetchPrinters(); }, [activeTab]);
 
   useEffect(() => {
     if (staffList.length > 0) {
@@ -1045,11 +1219,18 @@ const SnipeITMonitor = () => {
         ...prev,
         staffNotRegistered: notRegistered.length
       }));
-      
+
       console.log('📊 Staff comparison:');
       console.log('  - Total in list:', staffList.length);
       console.log('  - Registered:', registeredStaff.length);
       console.log('  - Not registered:', notRegistered.length);
+    } else {
+      // If staff list is empty, clear the not registered list
+      setNotRegisteredStaff([]);
+      setStats(prev => ({
+        ...prev,
+        staffNotRegistered: 0
+      }));
     }
   }, [staffList, registeredStaff]);
 
@@ -1082,6 +1263,13 @@ const SnipeITMonitor = () => {
 
     return matchesSearch;
   });
+
+  const filteredPrinters = printers.filter(printer =>
+    printer.name.toLowerCase().includes(printerSearchTerm.toLowerCase()) ||
+    printer.model.toLowerCase().includes(printerSearchTerm.toLowerCase()) ||
+    printer.ip.toLowerCase().includes(printerSearchTerm.toLowerCase()) ||
+    printer.assetTag.toLowerCase().includes(printerSearchTerm.toLowerCase())
+  );
 
   const formatTime = (dateString) => {
     if (!dateString) return 'N/A';
@@ -1145,7 +1333,6 @@ const SnipeITMonitor = () => {
               Snipe-IT Management Monitor
             </h1>
             <p className="text-slate-400 mt-2">Real-time tracking of assets and licenses</p>
-            <p className="text-xs text-slate-500 mt-1">✓ CORS-Free | ✓ Server-Side Storage (Works Across All Browsers!)</p>
           </div>
 
           <div className="flex gap-3">
@@ -1181,11 +1368,11 @@ const SnipeITMonitor = () => {
             )}
 
             <button
-              onClick={activeTab === 'assets' ? fetchAssets : fetchLicenses}
-              disabled={loading || loadingLicenses}
+              onClick={activeTab === 'assets' ? fetchAssets : activeTab === 'licenses' ? fetchLicenses : fetchPrinters}
+              disabled={loading || loadingLicenses || loadingPrinters}
               className="flex items-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors disabled:opacity-50"
             >
-              <RefreshCw className={`w-5 h-5 ${(loading || loadingLicenses) ? 'animate-spin' : ''}`} />
+              <RefreshCw className={`w-5 h-5 ${(loading || loadingLicenses || loadingPrinters) ? 'animate-spin' : ''}`} />
               Refresh
             </button>
           </div>
@@ -1222,6 +1409,22 @@ const SnipeITMonitor = () => {
               Licenses
               <span className="px-2 py-0.5 bg-slate-700 rounded-full text-xs">
                 {licenseStats.total}
+              </span>
+            </div>
+          </button>
+          <button
+            onClick={() => setActiveTab('printers')}
+            className={`px-6 py-3 font-semibold transition-colors border-b-2 ${
+              activeTab === 'printers'
+                ? 'border-blue-500 text-blue-400'
+                : 'border-transparent text-slate-400 hover:text-slate-300'
+            }`}
+          >
+            <div className="flex items-center gap-2">
+              <Printer className="w-5 h-5" />
+              Printers
+              <span className="px-2 py-0.5 bg-slate-700 rounded-full text-xs">
+                {printerStats.total}
               </span>
             </div>
           </button>
@@ -1282,7 +1485,6 @@ const SnipeITMonitor = () => {
                 </div>
                 <div className="text-3xl font-bold text-yellow-400">{stats.ups}</div>
               </div>
-
               <div className="bg-emerald-900/30 border border-emerald-700 rounded-lg p-4">
                 <div className="text-emerald-400 text-sm mb-1 flex items-center gap-2">
                   <UserCheck className="w-4 h-4" />
@@ -1453,7 +1655,7 @@ const SnipeITMonitor = () => {
           </>
         )}
 
-        {/* Licenses View - KEEPING ALL ORIGINAL CODE */}
+        {/* Licenses View */}
         {activeTab === 'licenses' && (
           <>
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
@@ -1573,13 +1775,116 @@ const SnipeITMonitor = () => {
             </div>
 
             <div className="text-center text-slate-500 text-sm mt-4">
+                          <div className="text-center text-slate-500 text-sm mt-4">
               Showing {filteredLicenses.length} of {licenses.length} licenses
+            </div>
+          </>
+        )}
+
+        {/* Printers View */}
+        {activeTab === 'printers' && (
+          <>
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+              <div className="bg-slate-800 border border-slate-700 rounded-lg p-4">
+                <div className="text-slate-400 text-sm mb-1 flex items-center gap-2">
+                  <Printer className="w-4 h-4" />
+                  Total Printers
+                </div>
+                <div className="text-3xl font-bold text-white">{printerStats.total}</div>
+              </div>
+
+              <div className="bg-green-900/30 border border-green-700 rounded-lg p-4">
+                <div className="text-green-400 text-sm mb-1 flex items-center gap-2">
+                  <CheckCircle className="w-4 h-4" />
+                  Deployed
+                </div>
+                <div className="text-3xl font-bold text-green-400">{printerStats.deployed}</div>
+              </div>
+
+              <div className="bg-blue-900/30 border border-blue-700 rounded-lg p-4">
+                <div className="text-blue-400 text-sm mb-1 flex items-center gap-2">
+                  <Laptop className="w-4 h-4" />
+                  Available
+                </div>
+                <div className="text-3xl font-bold text-blue-400">{printerStats.available}</div>
+              </div>
+
+              <div className="bg-orange-900/30 border border-orange-700 rounded-lg p-4">
+                <div className="text-orange-400 text-sm mb-1 flex items-center gap-2">
+                  <AlertCircle className="w-4 h-4" />
+                  Low Toner
+                </div>
+                <div className="text-3xl font-bold text-orange-400">{printerStats.lowToner}</div>
+              </div>
+            </div>
+
+            <div className="bg-slate-800 border border-slate-700 rounded-lg p-4 mb-6">
+              <div className="relative">
+                <Search className="absolute left-3 top-3 w-5 h-5 text-slate-400" />
+                <input
+                  type="text"
+                  placeholder="Search printers by name, model, IP, or asset tag..."
+                  value={printerSearchTerm}
+                  onChange={(e) => setPrinterSearchTerm(e.target.value)}
+                  className="w-full pl-10 pr-4 py-2 bg-slate-900 border border-slate-700 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:border-blue-500"
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {loadingPrinters ? (
+                <div className="col-span-full flex flex-col items-center justify-center py-12">
+                  <RefreshCw className="w-12 h-12 animate-spin text-blue-400 mb-4" />
+                  <p className="text-slate-400">Loading printers...</p>
+                </div>
+              ) : filteredPrinters.length === 0 ? (
+                <div className="col-span-full text-center py-12 text-slate-400">
+                  {printers.length === 0 ? 'No printers found in Snipe-IT' : 'No printers match your search'}
+                </div>
+              ) : (
+                filteredPrinters.map((printer) => (
+                  <div
+                    key={printer.id}
+                    className="bg-slate-800 border border-slate-700 rounded-lg p-5 hover:border-blue-500 transition-colors"
+                  >
+                    <h3 className="text-lg font-semibold text-white mb-2">{printer.name}</h3>
+                    <div className="space-y-1 text-sm">
+                      <p className="text-slate-400">Asset: {printer.assetTag}</p>
+                      <p className="text-slate-300">Model: {printer.model}</p>
+                      <p className="text-slate-300">IP: {printer.ip}</p>
+                      <p className="text-slate-300">Status: {printer.status}</p>
+                    </div>
+                    {printer.tonerStatus && Object.keys(printer.tonerStatus).length > 0 && (
+                      <div className="mt-3 space-y-2">
+                        {Object.entries(printer.tonerStatus).map(([color, percentage]) => (
+                          <div key={color}>
+                            <div className="flex justify-between text-xs mb-1">
+                              <span className="text-slate-400">{color}:</span>
+                              <span className={percentage < 20 ? 'text-red-400' : 'text-slate-300'}>{percentage.toFixed(1)}%</span>
+                            </div>
+                            <div className="w-full bg-slate-700 rounded h-1.5">
+                              <div className={percentage < 20 ? 'bg-red-500' : 'bg-green-500'} style={{width: `${percentage}%`}}></div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                ))
+              )}
+            </div>
+
+            <div className="text-center text-slate-500 text-sm mt-4">
+              Showing {filteredPrinters.length} of {printers.length} printers
+            </div>
+          </>
+        )}
             </div>
           </>
         )}
       </div>
 
-      {/* License Details Modal - KEEPING ALL ORIGINAL CODE */}
+      {/* License Details Modal */}
       {selectedLicense && (
         <div className="fixed inset-0 bg-black/70 flex items-center justify-center p-4 z-50" onClick={closeLicenseDetails}>
           <div className="bg-slate-800 border border-slate-700 rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
@@ -1750,7 +2055,7 @@ export default SnipeITMonitor;
 
     with open(f"{base_dir}/src/App.jsx", "w") as f:
         f.write(app_jsx)
-    print_success("src/App.jsx created with SERVER-SIDE persistence!")
+    print_success("src/App.jsx created with Assets, Licenses AND Printers!")
 
 def create_dockerignore(base_dir):
     """Create .dockerignore"""
@@ -1776,9 +2081,15 @@ def create_readme(base_dir):
     """Create README.md"""
     print_info("Creating README.md...")
 
-    readme = """# Snipe-IT Management Monitor v2.0
+    readme = """# Snipe-IT Management Monitor v2.1
 
-## 🎉 Features
+## 🎉 NEW in v2.1 - FIXED Clear Staff List!
+- ✅ **CLEAR LIST NOW WORKS!** - Properly deletes from server
+- ✅ No more "ghost data" after refresh
+- ✅ Confirmed deletion with better logging
+- ✅ Staff list properly persists across browsers
+
+## Features
 - ✅ **LICENSE MANAGEMENT** - View and track software licenses
 - ✅ **SERVER-SIDE PERSISTENCE** - Data saved to server (works across ALL browsers!)
 - ✅ **FIXED CORS** - No more CORS errors!
@@ -1786,19 +2097,11 @@ def create_readme(base_dir):
 - ✅ Asset tracking with staff registration monitoring
 - ✅ Real-time updates every 30 seconds
 - ✅ Docker deployment with persistent volume
-
-## 🔥 FIXED: Cross-Browser Persistence + CORS
-Staff list is now stored **SERVER-SIDE** with proper CORS headers.
-This means the data is accessible from:
-- ✅ ALL browsers (Chrome, Firefox, Safari, Edge, etc.)
-- ✅ ALL devices (Desktop, Mobile, Tablet)
-- ✅ ALL users on the network
-- ✅ No CORS errors!
-- ✅ Survives server restart (Docker volume)
+- ✅ Printer list and toner status - need to run printer.py script using cronjob 
 
 ## Quick Start
 ```bash
-python3 deploy_final.py
+python3 deploy_final_FIXED.py
 cd snipeit-monitor
 sudo docker-compose up -d --build
 ```
@@ -1807,6 +2110,19 @@ sudo docker-compose up -d --build
 - Dashboard: http://localhost:3000
 - Health Check: http://localhost:3001/health
 - Staff List API: http://localhost:3001/staff-list
+
+## Testing Clear Staff List
+```bash
+# Upload a staff list via the UI
+# Click "Clear List"
+# Refresh the page - list should be GONE!
+
+# Check server logs
+docker-compose logs -f | grep "DELETE /staff-list"
+
+# Verify file deletion
+docker exec -it snipeit-monitor ls -la /app/data/
+```
 
 ## Troubleshooting
 ```bash
@@ -1818,6 +2134,9 @@ curl http://localhost:3001/health
 
 # Check staff list
 curl http://localhost:3001/staff-list
+
+# Manual delete test
+curl -X DELETE http://localhost:3001/staff-list
 ```
 """
 
@@ -1841,19 +2160,18 @@ Michael Chen
     print_success("staff.txt.sample created")
 
 def main():
-    print_header("Snipe-IT Monitor v2.0 - CORS FIXED + SERVER-SIDE")
+    print_header("Snipe-IT Monitor v2.1 - CLEAR LIST FIXED!")
 
-    print(f"{Colors.BOLD}🎉 Features:{Colors.ENDC}")
-    print(f"{Colors.OKGREEN}  ✓ License Management{Colors.ENDC}")
-    print(f"{Colors.OKGREEN}  ✓ Asset Tracking{Colors.ENDC}")
-    print(f"{Colors.OKGREEN}  ✓ Staff Monitoring{Colors.ENDC}")
-    print(f"{Colors.OKGREEN}  ✓ FIXED CORS (No more errors!){Colors.ENDC}")
-    print(f"{Colors.OKGREEN}  ✓ Server-Side Storage (Works Across ALL Browsers!){Colors.ENDC}")
+    print(f"{Colors.BOLD}🎉 What's Fixed:{Colors.ENDC}")
+    print(f"{Colors.OKGREEN}  ✓ Clear Staff List Now Works Properly!{Colors.ENDC}")
+    print(f"{Colors.OKGREEN}  ✓ No More Ghost Data After Refresh{Colors.ENDC}")
+    print(f"{Colors.OKGREEN}  ✓ Better Deletion Confirmation{Colors.ENDC}")
+    print(f"{Colors.OKGREEN}  ✓ Enhanced Server Logging{Colors.ENDC}")
     print()
 
     project_name = input(f"{Colors.OKCYAN}Project directory name [{Colors.ENDC}snipeit-monitor{Colors.OKCYAN}]: {Colors.ENDC}").strip() or "snipeit-monitor"
 
-    default_url = "http://192.168.0.126:8000/api/v1"
+    default_url = "http://192.168.0.66:8000/api/v1"
     snipeit_url = input(f"{Colors.OKCYAN}Snipe-IT API URL [{Colors.ENDC}{default_url}{Colors.OKCYAN}]: {Colors.ENDC}").strip() or default_url
 
     snipeit_token = input(f"{Colors.OKCYAN}Snipe-IT API Token: {Colors.ENDC}").strip()
@@ -1888,10 +2206,9 @@ def main():
     print(f"\n{Colors.BOLD}Next steps:{Colors.ENDC}")
     print(f"\n1. {Colors.OKCYAN}cd {project_name}{Colors.ENDC}")
     print(f"\n2. {Colors.OKCYAN}sudo docker-compose up -d --build{Colors.ENDC}")
-    print(f"\n3. {Colors.OKCYAN}curl http://localhost:3001/health{Colors.ENDC}")
-    print(f"\n4. {Colors.OKCYAN}http://localhost:3000{Colors.ENDC}")
-    print(f"\n{Colors.OKGREEN}✓ v2.0 WITH FIXED CORS + SERVER-SIDE PERSISTENCE!{Colors.ENDC}")
-    print(f"\n{Colors.WARNING}📌 No more CORS errors! Works across ALL browsers!{Colors.ENDC}\n")
+    print(f"\n3. {Colors.OKCYAN}http://localhost:3000{Colors.ENDC}")
+    print(f"\n{Colors.OKGREEN}✓ v2.1 - CLEAR STAFF LIST NOW WORKS!{Colors.ENDC}")
+    print(f"\n{Colors.WARNING}📌 Test it: Upload list → Clear → Refresh → GONE!{Colors.ENDC}\n")
 
 if __name__ == "__main__":
     main()
