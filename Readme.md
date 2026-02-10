@@ -126,6 +126,12 @@ Open your browser to: http://localhost:3000
 - Real-time comparison with registered assets
 - Download lists of unregistered staff
 
+## Printer Monitoring
+- run discover.py { if you didn't know ip of the printer }
+- run printer.py - using crontab based on every minute/hours/day and so on depends on yours
+- auth.txt is where the ip/domain snipe-it and token - put here
+- printers.txt is the list of ip you get from discover.py output
+
 ---
 
 ## 🗂️ Project Structure
