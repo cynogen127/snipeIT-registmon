@@ -58,6 +58,8 @@ Snipe-IT Management Monitor is a **100% self-contained deployment script** that 
 ### Printer Monitoring
 - ✅ Printer list 
 - ✅ Printer toner status - make the life of it person much easier rather than just waiting user complain {pssss : - sometimes user are fakk}
+  <img width="1880" height="1030" alt="image" src="https://github.com/user-attachments/assets/e9224690-d19d-478a-ba82-b7be915d6dea" />
+
 ---
 
 ## 🚀 Quick Start
