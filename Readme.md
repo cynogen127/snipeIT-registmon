@@ -18,6 +18,7 @@
 
 ## 🎯 Overview
 # THIS WEB APP **MUST** BE USE IN LOCAL NETWOR AND ONLY AUTHORIZED PERSON CAN MANAGE SINCE THERE IS NO ANY SECURITY ENHANCED ON THE CODE
+# Use this with this tools ✨![Python](https://github.com/cynogen127/snipe-it-tools)✨
 Snipe-IT Management Monitor is a **100% self-contained deployment script** that creates a complete web-based monitoring dashboard for your Snipe-IT instance. Track hardware assets, manage software licenses, and monitor staff registrations - all with a beautiful, responsive interface.
 
 ### What Makes This Special?
